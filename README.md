@@ -26,7 +26,7 @@ View your EZVIZ cameras in HomeKit using [Homebridge](https://github.com/homebri
 2. Add your account credentials to `config.json`
 3. Run [Homebridge](https://github.com/homebridge/homebridge)
 
-#Note:# 2 Factor Authentication is not supported at this time.
+**Note:** 2 Factor Authentication is not supported at this time.
 
 ### Setting up the Config.json
 #### region
