@@ -1,0 +1,117 @@
+import { Logging } from 'homebridge';
+import axios from 'axios';
+import { AxiosRequestConfig } from 'axios';
+import crypto from 'crypto';
+import querystring from 'querystring';
+import { Login, Domain } from './models/connection';
+import { CameraInfo } from './models/camera';
+import { handleError, EZVIZEndpoints, sendRequest } from './endpoints';
+
+export async function getDomain(id: number): Promise<string> {
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'User-Agent': EZVIZEndpoints.USER_AGENT,
+    clientType: 1,
+  };
+
+  const domainReq: AxiosRequestConfig = {
+    headers: headers,
+    method: 'POST',
+    url: 'https://api.ezvizlife.com/api/area/domain',
+    data: querystring.stringify({
+      areaId: id,
+    }),
+  };
+
+  const domain = (await axios(domainReq)).data as Domain;
+  return `https://${domain.domain}`;
+}
+/**
+ * Get info on all cameras
+ */
+export async function getCameras(sessionId: string, domain: string, log?: Logging): Promise<Array<CameraInfo>> {
+  const cameras: Array<CameraInfo> = [];
+  const query = querystring.stringify({
+    filter: 'CONNECTION,SWITCH,STATUS,WIFI,NODISTURB,P2P,KMS,FEATURE,DETECTOR,VIDEO_QUALITY',
+    groupId: -1,
+    limit: 30,
+    offset: 0,
+  });
+  try {
+    const info = await sendRequest(sessionId, domain, `${EZVIZEndpoints.API_ENDPOINT_PAGELIST}?${query}`, 'GET');
+    if (info.deviceInfos && info.deviceInfos.length > 0) {
+      const connection = info.CONNECTION;
+      const status = info.STATUS;
+      const switchInfo = info.SWITCH;
+      for (const item of info.deviceInfos) {
+        const camera = item as CameraInfo;
+        if (connection && connection.hasOwnProperty(camera.deviceSerial)) {
+          camera.connection = connection[camera.deviceSerial];
+        }
+        if (status && status.hasOwnProperty(camera.deviceSerial)) {
+          camera.statusInfo = status[camera.deviceSerial];
+        }
+        if (switchInfo && switchInfo.hasOwnProperty(camera.deviceSerial)) {
+          camera.switch = switchInfo[camera.deviceSerial];
+        }
+
+        cameras.push(camera);
+      }
+    }
+  } catch (error) {
+    handleError(log, error, 'Error fetching cameras');
+  }
+  return cameras;
+}
+
+export async function auth(domain: string, email: string, password: string, log?: Logging): Promise<string> {
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'User-Agent': EZVIZEndpoints.USER_AGENT,
+    clientType: 1,
+  };
+
+  const emailHash = crypto.createHash('md5').update(password).digest('hex');
+  const passHash = crypto.createHash('md5').update(password).digest('hex');
+
+  const payload = {
+    account: email,
+    featureCode: emailHash,
+    password: passHash,
+  };
+
+  const req: AxiosRequestConfig = {
+    headers: headers,
+    method: 'POST',
+    url: `${domain}${EZVIZEndpoints.API_ENDPOINT_AUTH}`,
+    data: querystring.stringify(payload),
+  };
+
+  try {
+    const response = (await axios(req)).data;
+    if (response.retcode) {
+      if (response.retcode === '1001') {
+        log?.error('Login error: Incorrect login details');
+      } else if (response.retcode === '1002') {
+        log?.error('Login error: Captcha required');
+      } else if (response.retcode === '1005') {
+        log?.error('Login error: Incorrect Captcha code');
+      } else {
+        log?.error(`Login error: ${response.retcode}`);
+      }
+      return '';
+    }
+    if (response.meta && response.meta.code) {
+      const code = response.meta.code;
+      if (code === 6002) {
+        log?.error('2 Factor Authentication accounts are not supported at this time.');
+        return '';
+      }
+    }
+    const login = response as Login;
+    return login.loginSession.sessionId;
+  } catch (error) {
+    handleError(log, error, 'Unable to login');
+    return '';
+  }
+}

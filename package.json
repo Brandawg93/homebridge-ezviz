@@ -1,0 +1,78 @@
+{
+  "displayName": "Homebridge EZVIZ",
+  "name": "homebridge-ezviz",
+  "version": "1.0.0",
+  "description": "EZVIZ plugin for homebridge: https://homebridge.io/",
+  "main": "dist/index.js",
+  "license": "GPL-3.0",
+  "author": "Brandawg93",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://www.buymeacoffee.com/L1FgZTD"
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/Brandawg93"
+    },
+    {
+      "type": "paypal",
+      "url": "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=CEYYGVB7ZZ764&item_name=homebridge-ezviz&currency_code=USD&source=url"
+    }
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist ./coverage",
+    "build": "npm run clean && tsc",
+    "packlist": "npm pack --dry-run && rm *.tgz",
+    "format": "prettier --write src/**/*.ts",
+    "test": "jest --coverage",
+    "watch:tests": "jest --watch",
+    "lint": "eslint src/**/*.ts --fix",
+    "prepare": "npm run clean && tsc",
+    "prepublishOnly": "npm run lint",
+    "postpublish": "npm run clean"
+  },
+  "keywords": [
+    "homebridge",
+    "homebridge-plugin",
+    "ezviz",
+    "doorbell",
+    "camera",
+    "smart"
+  ],
+  "repository": "github:Brandawg93/homebridge-ezviz",
+  "bugs": {
+    "url": "https://github.com/Brandawg93/homebridge-ezviz/issues"
+  },
+  "engines": {
+    "node": ">=10",
+    "homebridge": ">=1.1.3"
+  },
+  "files": [
+    "LICENSE",
+    "dist/**/*",
+    "config.schema.json"
+  ],
+  "dependencies": {
+    "axios": "^0.21.1",
+    "execa": "^5.0.0",
+    "ffmpeg-for-homebridge": "^0.0.9",
+    "get-port": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "@types/node": "^14.14.22",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.19.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-prettier": "^3.3.1",
+    "homebridge": "^1.1.7",
+    "jest": "^26.6.3",
+    "jest-preset-angular": "^8.3.2",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.5.0"
+  }
+}
