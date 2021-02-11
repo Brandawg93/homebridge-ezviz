@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge EZVIZ",
   "name": "homebridge-ezviz",
-  "version": "1.0.0",
+  "version": "1.0.1-test.0",
   "description": "EZVIZ plugin for homebridge: https://homebridge.io/",
   "main": "dist/index.js",
   "license": "GPL-3.0",
@@ -61,9 +61,9 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",
-    "@types/node": "^14.14.22",
-    "@typescript-eslint/eslint-plugin": "^4.14.1",
-    "@typescript-eslint/parser": "^4.14.1",
+    "@types/node": "^14.14.25",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-jest": "^24.1.3",
@@ -73,7 +73,7 @@
     "jest-preset-angular": "^8.3.2",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.5.0",
-    "typescript": "^4.1.3"
+    "ts-jest": "^26.5.1",
+    "typescript": "^4.1.5"
   }
 }

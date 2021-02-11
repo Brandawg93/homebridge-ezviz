@@ -108,8 +108,13 @@ export async function auth(domain: string, email: string, password: string, log?
         return '';
       }
     }
-    const login = response as Login;
-    return login.loginSession.sessionId;
+    if (response.loginSession && response.loginSession.sessionId) {
+      const login = response as Login;
+      return login.loginSession.sessionId;
+    } else {
+      log?.error(response);
+      return '';
+    }
   } catch (error) {
     handleError(log, error, 'Unable to login');
     return '';
