@@ -47,23 +47,20 @@ type SessionInfo = {
 export class StreamingDelegate implements CameraStreamingDelegate {
   private readonly hap: HAP;
   private readonly log: Logging;
-  private readonly config: EZVIZConfig;
   private customFfmpeg: string | undefined;
   private videoProcessor: string;
   private ffmpegInstalled = true;
   private ffmpegSupportsLibfdk_acc = true;
-  private ffmpegSupportsLibspeex = true;
   private camera: EZVIZCam;
   controller?: CameraController;
 
   // keep track of sessions
   private pendingSessions: Record<string, SessionInfo> = {};
-  private ongoingSessions: Record<string, Array<FfmpegProcess | undefined>> = {};
+  private ongoingSessions: Record<string, FfmpegProcess | undefined> = {};
 
   constructor(hap: HAP, camera: EZVIZCam, config: EZVIZConfig, log: Logging) {
     this.hap = hap;
     this.log = log;
-    this.config = config;
     this.camera = camera;
     this.customFfmpeg = config.options?.pathToFfmpeg;
     this.videoProcessor = this.customFfmpeg || pathToFfmpeg || 'ffmpeg';
@@ -81,7 +78,6 @@ export class StreamingDelegate implements CameraStreamingDelegate {
     getCodecsOutput(this.videoProcessor)
       .then((output) => {
         this.ffmpegSupportsLibfdk_acc = output.includes('libfdk_aac');
-        this.ffmpegSupportsLibspeex = output.includes('libspeex');
       })
       .catch(() => {
         // skip
@@ -326,7 +322,8 @@ export class StreamingDelegate implements CameraStreamingDelegate {
           false,
           this.customFfmpeg,
         );
-        this.ongoingSessions[sessionId] = [ffmpeg];
+        this.log.info(`Streaming started for ${this.camera.info.name}`);
+        this.ongoingSessions[sessionId] = ffmpeg;
         break;
       case StreamRequestTypes.RECONFIGURE:
         // not implemented
@@ -343,14 +340,9 @@ export class StreamingDelegate implements CameraStreamingDelegate {
   public stopStream(sessionId: string): void {
     try {
       if (this.ongoingSessions[sessionId]) {
-        const ffmpegVideoProcess = this.ongoingSessions[sessionId][0];
+        const ffmpegVideoProcess = this.ongoingSessions[sessionId];
         ffmpegVideoProcess?.stop();
-        if (this.ongoingSessions[sessionId].length > 1) {
-          const ffmpegAudioProcess = this.ongoingSessions[sessionId][1];
-          const ffmpegReturnAudioProcess = this.ongoingSessions[sessionId][2];
-          ffmpegAudioProcess?.stop();
-          ffmpegReturnAudioProcess?.stop();
-        }
+        this.log.info(`Streaming stopped for ${this.camera.info.name}`);
       }
 
       const sessionInfo = this.pendingSessions[sessionId];
@@ -360,7 +352,6 @@ export class StreamingDelegate implements CameraStreamingDelegate {
 
       delete this.pendingSessions[sessionId];
       delete this.ongoingSessions[sessionId];
-      this.log.debug('Stopped streaming session!');
     } catch (e) {
       this.log.error('Error occurred terminating the video process!');
       this.log.error(e);

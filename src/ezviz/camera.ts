@@ -65,6 +65,11 @@ export class EZVIZCam extends EventEmitter {
     const camera = cameras.find((x) => x.deviceSerial === this.info.deviceSerial);
     if (camera) {
       camera.code = this.config.cameras?.find((x) => x.serial === camera.deviceSerial)?.code;
+      if (!camera.code) {
+        this.log?.error(
+          `Please add the verification code for ${camera.name} to your config.json. Instructions can be found on the Github.`,
+        );
+      }
       this.info = camera;
     }
     return this.info;
