@@ -14,6 +14,8 @@ import { auth, getCameras, getDomain } from './ezviz/connection';
 import { EZVIZConfig } from './ezviz/models/config';
 import { EAVIZAccessory } from './accessory';
 
+const HOUR = 3600000;
+
 class Options {
   sleepSwitch = true;
   audioSwitch = true;
@@ -156,14 +158,15 @@ class EZVIZPlatform implements DynamicPlatformPlugin {
   }
 
   async didFinishLaunching(): Promise<void> {
+    const self = this;
     const sessionId = await this.getSessionId();
     if (sessionId) {
       this.config.sessionId = sessionId;
-      // EZVIZ needs to be reauthenticated about every hour
-      // setInterval(async () => {
-      //   self.log.debug('Reauthenticating with config credentials');
-      //   this.config.sessionId = await this.getSessionId();
-      // }, 3480000); // 58 minutes
+      // EZVIZ needs to be reauthenticated about every 12 hours
+      setInterval(async () => {
+        self.log.debug('Reauthenticating with config credentials');
+        this.config.sessionId = await this.getSessionId();
+      }, HOUR * 12);
       const cameras = await getCameras(this.config.sessionId, this.config.domain, this.log);
       await this.addCameras(cameras);
     } else {
