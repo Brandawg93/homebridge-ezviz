@@ -85,23 +85,31 @@ class EZVIZPlatform implements DynamicPlatformPlugin {
     ezvizAccessory.configureController();
 
     // // Sleep switch configuration
-    const sleepSwitch = camera.info.switch.find((x) => x.type === SwitchTypes.Sleep);
-    if (sleepSwitch && this.options.sleepSwitch) {
-      ezvizAccessory.createSwitchService('Sleep Mode', hap.Service.Switch, SwitchTypes.Sleep, async (value) => {
-        await ezvizAccessory.toggleSleep(value as boolean);
-      });
-    } else {
-      ezvizAccessory.removeService(hap.Service.Switch, 'Sleep Mode');
+    try {
+      const sleepSwitch = camera.info?.switch?.find((x) => x.type === SwitchTypes.Sleep);
+      if (sleepSwitch && this.options.sleepSwitch) {
+        ezvizAccessory.createSwitchService('Sleep Mode', hap.Service.Switch, SwitchTypes.Sleep, async (value) => {
+          await ezvizAccessory.toggleSleep(value as boolean);
+        });
+      } else {
+        ezvizAccessory.removeService(hap.Service.Switch, 'Sleep Mode');
+      }
+    } catch (e) {
+      this.log.error('Error handling sleepSwitch', e);
     }
 
     // // Audio switch configuration
-    const audioSwitch = camera.info.switch.find((x) => x.type === SwitchTypes.Audio);
-    if (audioSwitch && this.options.audioSwitch) {
-      ezvizAccessory.createSwitchService('Audio', hap.Service.Switch, SwitchTypes.Audio, async (value) => {
-        await ezvizAccessory.toggleAudio(value as boolean);
-      });
-    } else {
-      ezvizAccessory.removeService(hap.Service.Switch, 'Audio');
+    try {
+      const audioSwitch = camera.info?.switch?.find((x) => x.type === SwitchTypes.Audio);
+      if (audioSwitch && this.options.audioSwitch) {
+        ezvizAccessory.createSwitchService('Audio', hap.Service.Switch, SwitchTypes.Audio, async (value) => {
+          await ezvizAccessory.toggleAudio(value as boolean);
+        });
+      } else {
+        ezvizAccessory.removeService(hap.Service.Switch, 'Audio');
+      }
+    } catch (e) {
+      this.log.error('Error handling audioSwitch', e);
     }
 
     this.ezvizObjects.push({ accessory: accessory, camera: camera });
