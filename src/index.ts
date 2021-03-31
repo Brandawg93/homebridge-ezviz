@@ -10,6 +10,7 @@ import {
 } from 'homebridge';
 import { EZVIZCam } from './ezviz/camera';
 import { CameraInfo, SwitchTypes } from './ezviz/models/camera';
+import { Credentials } from './ezviz/models/connection';
 import { auth, getCameras, getDomain } from './ezviz/connection';
 import { EZVIZConfig } from './ezviz/models/config';
 import { EAVIZAccessory } from './accessory';
@@ -143,14 +144,14 @@ class EZVIZPlatform implements DynamicPlatformPlugin {
     });
   }
 
-  async getSessionId(): Promise<string> {
+  async getCredentials(): Promise<Credentials | undefined> {
     const region = this.config.region;
     const email = this.config.email;
     const password = this.config.password;
 
     if (!email || !password) {
       this.log.error('You must provide your email and password in config.json.');
-      return '';
+      return;
     }
 
     this.config.domain = await getDomain(region);
@@ -159,15 +160,18 @@ class EZVIZPlatform implements DynamicPlatformPlugin {
 
   async didFinishLaunching(): Promise<void> {
     const self = this;
-    const sessionId = await this.getSessionId();
-    if (sessionId) {
-      this.config.sessionId = sessionId;
+    const credentials = await this.getCredentials();
+    if (credentials) {
+      this.config.credentials = credentials;
       // EZVIZ needs to be reauthenticated about every 12 hours
       setInterval(async () => {
         self.log.debug('Reauthenticating with config credentials');
-        this.config.sessionId = await this.getSessionId();
+        const credentials = await this.getCredentials();
+        if (credentials) {
+          this.config.credentials = credentials;
+        }
       }, HOUR * 12);
-      const cameras = await getCameras(this.config.sessionId, this.config.domain, this.log);
+      const cameras = await getCameras(this.config, this.log);
       await this.addCameras(cameras);
     } else {
       this.log.error('Unable to retrieve access token.');

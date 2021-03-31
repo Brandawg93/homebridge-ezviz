@@ -29,15 +29,15 @@ export class EZVIZCam extends EventEmitter {
       sessionId: this.config.sessionId,
       type: type,
     });
-    const response = await sendRequest(
-      this.config.sessionId,
-      this.config.domain,
-      EZVIZEndpoints.API_ENDPOINT_SWITCH_STATUS,
-      'POST',
-      query,
-    );
-
     try {
+      const response = await sendRequest(
+        this.config,
+        this.config.domain,
+        EZVIZEndpoints.API_ENDPOINT_SWITCH_STATUS,
+        'POST',
+        query,
+      );
+
       if (response.resultCode && response.resultCode !== '0') {
         this.log?.error(`Unable to set property '${type}' for ${this.info.name} to ${value}`);
         return false;
@@ -61,7 +61,7 @@ export class EZVIZCam extends EventEmitter {
       return this.info;
     }
 
-    const cameras = await getCameras(this.config.sessionId || '', this.config.domain, this.log);
+    const cameras = await getCameras(this.config, this.log);
     const camera = cameras.find((x) => x.deviceSerial === this.info.deviceSerial);
     if (camera) {
       camera.code = this.config.cameras?.find((x) => x.serial === camera.deviceSerial)?.code;

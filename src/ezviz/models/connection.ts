@@ -38,9 +38,21 @@ interface LoginArea {
   areaId: number;
 }
 
-interface LoginSession {
+export interface LoginSession {
   sessionId: string;
   rfSessionId: string;
+}
+
+interface SessionInfo {
+  refreshSessionId: string;
+  sessionId: string;
+}
+
+export interface RefreshSession {
+  hcGvIsolate: boolean;
+  isolate: boolean;
+  meta: Meta;
+  sessionInfo: SessionInfo;
 }
 
 export interface Domain {
@@ -60,4 +72,11 @@ export interface Login {
   telphoneCode: string;
   loginArea: LoginArea;
   loginSession: LoginSession;
+}
+
+export interface Credentials {
+  sessionId: string;
+  cuName: string;
+  featureCode: string;
+  rfSessionId: string;
 }

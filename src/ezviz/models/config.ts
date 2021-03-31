@@ -1,4 +1,5 @@
 import { PlatformConfig } from 'homebridge';
+import { Credentials } from './connection';
 
 interface Options {
   sleepSwitch?: boolean;
@@ -16,7 +17,7 @@ export interface EZVIZConfig extends PlatformConfig {
   region: number;
   email: string;
   password: string;
-  sessionId: string;
+  credentials: Credentials;
   domain: string;
   cameras?: Array<Camera>;
   options?: Options;
