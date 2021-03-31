@@ -1,4 +1,6 @@
 export enum SwitchTypes {
+  'Status_Light' = 3,
+  'IR_Light' = 10,
   'Sleep' = 21,
   'Audio' = 22,
 }
