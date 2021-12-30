@@ -352,7 +352,7 @@ export class StreamingDelegate implements CameraStreamingDelegate {
 
       delete this.pendingSessions[sessionId];
       delete this.ongoingSessions[sessionId];
-    } catch (e) {
+    } catch (e: any) {
       this.log.error('Error occurred terminating the video process!');
       this.log.error(e);
     }

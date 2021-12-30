@@ -74,7 +74,7 @@ export async function sendRequest(
 
   try {
     return (await axios(req)).data;
-  } catch (error) {
+  } catch (error: any) {
     // Attempt to refresh auth
     if (retries > 0 && error.response?.status === '401') {
       const query = querystring.stringify({

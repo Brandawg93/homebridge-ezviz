@@ -22,7 +22,7 @@ export async function getDomain(id: number): Promise<string> {
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     'User-Agent': EZVIZEndpoints.USER_AGENT,
-    clientType: 1,
+    clientType: '1',
   };
 
   const domainReq: AxiosRequestConfig = {
@@ -85,7 +85,7 @@ export async function auth(
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     'User-Agent': EZVIZEndpoints.USER_AGENT,
-    clientType: 1,
+    clientType: '1',
   };
 
   const emailHash = crypto.createHash('md5').update(password).digest('hex');
